@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-import uuid
 
-app = FastAPI(title="Audiobook TTS & Localization API")
+app = FastAPI(title="Angular Dashboard API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,44 +13,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class NovelTask(BaseModel):
-    task_id: str
-    novel_title: str
-    language_target: str
-    voice_profile_id: str
-    status: str = "pending"
-    progress_percentage: int = 0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
+class DashboardItem(BaseModel):
+    id: int
+    title: str
+    status: str
+    score: float
+    timestamp: str
+    category: str
+    metadata: dict
 
-# In-memory storage
-db = {}
+seed_data = [
+    DashboardItem(id=1, title="System Load", status="Active", score=85.5, timestamp=datetime.now().isoformat(), category="Infrastructure", metadata={"node": "prod-01"}),
+    DashboardItem(id=2, title="User Auth", status="Warning", score=42.0, timestamp=datetime.now().isoformat(), category="Security", metadata={"node": "auth-02"})
+]
 
-@app.post("/api/v1/process-novel", response_model=NovelTask)
-async def process_novel(title: str, lang: str, voice_id: str):
-    task_id = str(uuid.uuid4())
-    new_task = NovelTask(task_id=task_id, novel_title=title, language_target=lang, voice_profile_id=voice_id)
-    db[task_id] = new_task
-    return new_task
+@app.get("/api/v1/dashboard/metrics")
+async def get_metrics():
+    return {"total_items": len(seed_data), "avg_score": sum(i.score for i in seed_data) / len(seed_data), "status": "healthy"}
 
-@app.get("/api/v1/tasks/{task_id}", response_model=NovelTask)
-async def get_task(task_id: str):
-    if task_id not in db:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return db[task_id]
+@app.get("/api/v1/dashboard/data-feed", response_model=List[DashboardItem])
+async def get_data_feed(page: int = 1, limit: int = 10):
+    return seed_data
 
-@app.post("/api/v1/translate")
-async def translate_chapter(task_id: str, chapter_index: int):
-    if task_id not in db:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return {"message": f"Translation triggered for chapter {chapter_index}"}
+@app.post("/api/v1/dashboard/actions")
+async def execute_action(action: dict):
+    return {"status": "success", "action_received": action}
 
-@app.get("/api/v1/audio/{task_id}/download")
-async def download_audio(task_id: str):
-    if task_id not in db:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return {"url": f"/static/audio/{task_id}.mp3"}
-
-@app.get("/api/v1/health")
+@app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "workers": "active"}
+    return {"status": "online", "timestamp": datetime.now().isoformat()}
