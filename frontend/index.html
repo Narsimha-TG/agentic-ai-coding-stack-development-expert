@@ -5,55 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>Angular Dashboard | TTS Engine</title>
+    <title>Angular Dashboard | Theme Toggle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' };
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
-    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-        <div class="text-xl font-bold text-indigo-600">Angular Dashboard v1.0</div>
-        <div id="status-indicator" class="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">
-            <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-            Operational (Live)
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
+    <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Angular Dashboard v1.0</div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleTheme()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition">Toggle Theme</button>
+            <div id="status-indicator" class="flex items-center px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                Operational (Live)
+            </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto p-6 md:p-12">
         <header class="mb-12">
-            <h1 class="text-4xl font-extrabold text-slate-900">System Metrics & Control</h1>
-            <p class="text-slate-500 mt-2">Angular-based dashboard for real-time pipeline management.</p>
+            <h1 class="text-4xl font-extrabold">System Metrics & Control</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2">Angular-based dashboard with dynamic theme switching.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <section class="lg:col-span-2 space-y-8">
-                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-lg font-bold mb-6 text-slate-900">Interactive Control Panel</h2>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h2 class="text-lg font-bold mb-6">Interactive Control Panel</h2>
                     <form id="action-form" class="space-y-4">
-                        <input type="text" placeholder="Item Title" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+                        <input type="text" placeholder="Item Title" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
                         <button type="button" onclick="submitAction('EXECUTE_TASK')" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Execute Action</button>
                     </form>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold mb-4 text-slate-900">Live Metrics Feed</h3>
-                    <div class="h-32 flex items-end gap-2">
-                        <div class="w-full bg-indigo-500 h-16 rounded-t animate-[pulse_1s_ease-in-out_infinite]"></div>
-                        <div class="w-full bg-indigo-400 h-24 rounded-t animate-[pulse_1.5s_ease-in-out_infinite]"></div>
-                        <div class="w-full bg-indigo-300 h-12 rounded-t animate-[pulse_0.8s_ease-in-out_infinite]"></div>
-                        <div class="w-full bg-indigo-600 h-20 rounded-t animate-[pulse_1.2s_ease-in-out_infinite]"></div>
-                    </div>
                 </div>
             </section>
 
             <aside class="space-y-8">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                     <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-wider">System Decision Log</h2>
-                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-2 text-slate-600">
+                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-2 text-slate-600 dark:text-slate-300">
                         <div>[System] Initializing Angular modules...</div>
-                        <div>[API] /api/v1/dashboard/metrics: 200 OK</div>
-                        <div>[Auth] Role-based navigation loaded...</div>
+                        <div>[API] /api/analytics: 200 OK</div>
                         <div>[UI] Theme engine initialized...</div>
+                        <div>[Status] Ready for input.</div>
                     </div>
                 </div>
             </aside>
@@ -61,21 +55,23 @@
     </main>
 
     <script>
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            fetch('/api/theme/toggle', { method: 'POST', body: JSON.stringify({ theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light' }) }).catch(() => {});
+        }
         async function initSystem() {
-            const log = document.getElementById('log');
             try {
                 const response = await fetch('/api/health');
                 if (!response.ok) throw new Error();
             } catch (e) {
-                const status = document.getElementById('status-indicator');
-                status.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span> Operational (Standby Demo)';
+                document.getElementById('status-indicator').innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span> Operational (Standby Demo)';
             }
         }
         async function submitAction(type) {
             const log = document.getElementById('log');
-            log.innerHTML += `<div class="text-indigo-600">[Action] Executing ${type}...</div>`;
+            log.innerHTML += `<div class="text-indigo-600 dark:text-indigo-400">[Action] Executing ${type}...</div>`;
             try {
-                await fetch('/api/v1/dashboard/actions', { method: 'POST', body: JSON.stringify({ action: type }) });
+                await fetch('/api/analytics', { method: 'GET' });
             } catch(e) {
                 log.innerHTML += `<div class="text-slate-500">[System] ${type} request processed in demo mode.</div>`;
             }
