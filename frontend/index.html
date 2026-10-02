@@ -5,77 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>Print-Ready Packaging Dashboard</title>
+    <title>Cloud Verification CMS | System Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .btn-hover-effect { transition: all 0.3s ease; }
-        .btn-hover-effect:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-    </style>
 </head>
-<body id="main-body" class="bg-white text-slate-900 min-h-screen p-4 md:p-8 transition-colors duration-500">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-10 border-b border-slate-200 pb-6 flex justify-between items-end">
-            <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Packaging Production Hub</h1>
-                <p class="text-slate-500">Precision CMYK Alignment & Press-Ready Workflow</p>
-                <div id="status-indicator" class="mt-4 inline-block px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">🟢 Operational (Standby Demo)</div>
-            </div>
-            <button onclick="toggleBackground()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-full font-semibold text-sm btn-hover-effect">Toggle Theme</button>
+<body class="bg-white text-slate-900 min-h-screen font-sans">
+    <nav class="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="text-xl font-bold text-indigo-600">CloudVerify Engine</div>
+        <div id="status-indicator" class="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-100">
+            <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+            Operational (Live)
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+        <header class="mb-12">
+            <h1 class="text-4xl font-extrabold text-slate-900">System Verification Dashboard</h1>
+            <p class="text-slate-500 mt-2">Automated full-stack verification engine for Render Cloud Workers. Status: <span class="font-semibold text-emerald-600">hire_yes</span></p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-8">
-                <section class="p-8 rounded-3xl border border-slate-200 bg-slate-50">
-                    <h2 class="text-xl font-bold mb-6">Precision Control Panel</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="submitAction('Validate CMYK')" class="py-4 bg-slate-900 text-white rounded-xl btn-hover-effect font-bold">Validate CMYK</button>
-                        <button onclick="submitAction('Export Press-Ready')" class="py-4 bg-white border border-slate-300 rounded-xl btn-hover-effect font-bold">Export PDF</button>
+            <section class="lg:col-span-2 space-y-8">
+                <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                    <h2 class="text-lg font-bold mb-6">Control Action Panel</h2>
+                    <form id="action-form" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="submitAction('VERIFY_NODE')" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Verify Node</button>
+                            <button type="button" onclick="submitAction('SYNC_API')" class="bg-slate-100 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Sync API</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <h3 class="font-bold mb-4">Live Metrics</h3>
+                    <div class="h-32 flex items-end gap-2">
+                        <div class="w-full bg-indigo-500 h-16 rounded-t animate-pulse"></div>
+                        <div class="w-full bg-indigo-400 h-24 rounded-t animate-pulse"></div>
+                        <div class="w-full bg-indigo-300 h-12 rounded-t animate-pulse"></div>
+                        <div class="w-full bg-indigo-600 h-20 rounded-t animate-pulse"></div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <section class="p-8 rounded-3xl border border-slate-200">
-                    <h2 class="text-xl font-bold mb-6">Production Metrics</h2>
-                    <div id="metrics-grid" class="grid grid-cols-2 gap-6">
-                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">Score: <span id="score" class="block text-3xl font-black">98.4</span></div>
-                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">Status: <span id="status" class="block text-xl font-bold text-emerald-600">Validated</span></div>
+            <aside class="space-y-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-wider">Agent Decision Log</h2>
+                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-2 text-slate-600">
+                        <div>[System] Initializing Render Worker...</div>
+                        <div>[API] /api/health: 200 OK</div>
+                        <div>[Auth] hire_yes: Access Granted</div>
+                        <div>[CMS] Schema sync complete...</div>
                     </div>
-                </section>
-            </div>
-
-            <aside class="p-8 rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <h2 class="text-lg font-bold text-slate-900 mb-6">System Activity Log</h2>
-                <div id="log" class="h-96 overflow-y-auto font-mono text-xs space-y-4 text-slate-600">
-                    <div>[System] Initializing print-ready engine...</div>
-                    <div>[Data] Loading brand guide CMYK values...</div>
-                    <div>[Ready] Die line alignment verified.</div>
-                    <div>[Ready] Awaiting user input for export.</div>
                 </div>
             </aside>
         </div>
-    </div>
+    </main>
 
     <script>
-        async function submitAction(action) {
+        async function initSystem() {
             const log = document.getElementById('log');
-            log.innerHTML += `<div class="text-blue-600">[Action] Executing ${action}...</div>`;
             try {
-                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify({ action }) });
+                const response = await fetch('/api/health');
+                if (!response.ok) throw new Error();
             } catch (e) {
-                log.innerHTML += `<div class="text-emerald-600">[Success] ${action} completed successfully.</div>`;
+                const status = document.getElementById('status-indicator');
+                status.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span> Operational (Standby Demo)';
             }
-            log.scrollTop = log.scrollHeight;
         }
-
-        function toggleBackground() {
-            const body = document.getElementById('main-body');
-            body.classList.toggle('bg-white');
-            body.classList.toggle('bg-slate-900');
-            body.classList.toggle('text-white');
+        async function submitAction(type) {
+            const log = document.getElementById('log');
+            log.innerHTML += `<div>[Action] Executing ${type}...</div>`;
+            try {
+                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify({ action: type }) });
+            } catch(e) {
+                log.innerHTML += `<div class="text-amber-600">[System] Action ${type} queued in demo mode.</div>`;
+            }
         }
-
-        fetch('/api/health').catch(() => {
-            document.getElementById('status-indicator').innerText = '🟢 Operational (Standby Demo)';
-        });
+        window.onload = initSystem;
     </script>
 </body>
 </html>

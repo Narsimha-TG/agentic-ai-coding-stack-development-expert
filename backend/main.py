@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 
-app = FastAPI(title="Print-Ready Small Box Design API")
+app = FastAPI(title="Cloud Verification CMS API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,22 +21,22 @@ class Review(BaseModel):
     timestamp: str
 
 # In-memory seed data
-data_store = [
-    {"id": 1, "title": "Box Design A", "status": "pending", "score": 85.5, "timestamp": datetime.now().isoformat()},
-    {"id": 2, "title": "Box Design B", "status": "approved", "score": 92.0, "timestamp": datetime.now().isoformat()}
+db = [
+    {"id": 1, "title": "Verification Alpha", "status": "active", "score": 98.5, "timestamp": datetime.utcnow().isoformat()},
+    {"id": 2, "title": "Verification Beta", "status": "pending", "score": 82.0, "timestamp": datetime.utcnow().isoformat()}
 ]
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
-@app.get("/api/analytics")
+@app.get("/api/analytics", response_model=List[Review])
 def get_analytics():
-    return {"total_items": len(data_store), "average_score": sum(d['score'] for d in data_store) / len(data_store)}
+    return db
 
 @app.post("/api/reviews", response_model=Review)
 def create_review(review: Review):
-    data_store.append(review.dict())
+    db.append(review.dict())
     return review
 
 if __name__ == "__main__":

@@ -12,23 +12,23 @@ def test_health_check():
 def test_get_analytics():
     response = client.get("/api/analytics")
     assert response.status_code == 200
-    data = response.json()
-    assert "total_items" in data
-    assert "average_score" in data
-    assert isinstance(data["total_items"], int)
+    assert isinstance(response.json(), list)
+    assert len(response.json()) >= 2
 
 def test_create_review():
     payload = {
         "id": 3,
-        "title": "Box Design C",
-        "status": "pending",
-        "score": 90.0,
+        "title": "Verification Gamma",
+        "status": "completed",
+        "score": 95.0,
         "timestamp": "2023-10-27T10:00:00"
     }
     response = client.post("/api/reviews", json=payload)
     assert response.status_code == 200
-    assert response.json()["title"] == "Box Design C"
-    
-    # Verify it was added by checking analytics count
-    analytics = client.get("/api/analytics").json()
-    assert analytics["total_items"] == 3
+    assert response.json()["id"] == 3
+    assert response.json()["title"] == "Verification Gamma"
+
+def test_create_review_invalid():
+    payload = {"id": "invalid_id", "title": "Fail"}
+    response = client.post("/api/reviews", json=payload)
+    assert response.status_code == 422
