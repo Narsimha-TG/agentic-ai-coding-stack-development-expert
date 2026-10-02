@@ -4,31 +4,33 @@ from main import app
 
 client = TestClient(app)
 
-def test_root_health():
-    # Note: The provided implementation does not have a root path, 
-    # but we test the existing endpoints for health/status.
-    response = client.get("/api/v1/reports/daily")
+def test_health_check():
+    response = client.get("/api/health")
     assert response.status_code == 200
+    assert response.json()["status"] == "online"
 
-def test_daily_report_metrics():
-    response = client.get("/api/v1/reports/daily")
+def test_get_analytics():
+    response = client.get("/api/analytics")
     assert response.status_code == 200
-    assert "total_sales" in response.json()
+    data = response.json()
+    assert "total_nodes" in data
+    assert "avg_score" in data
+    assert isinstance(data["total_nodes"], int)
 
-def test_create_transaction_valid():
+def test_create_review():
     payload = {
-        "transaction_id": "TXN-12345",
-        "total_amount": 99.99,
-        "tax_details": {"GST": 5.0, "QST": 9.97}
+        "id": 3,
+        "title": "Cloud Node Gamma",
+        "status": "active",
+        "score": 95.0,
+        "timestamp": "2023-10-27T10:00:00"
     }
-    response = client.post("/api/v1/transactions", json=payload)
+    response = client.post("/api/reviews", json=payload)
     assert response.status_code == 200
-    assert response.json()["message"] == "Transaction processed"
-    assert response.json()["id"] == "TXN-12345"
+    assert response.json() == payload
 
-def test_srm_sign_endpoint():
-    payload = {"data": {"amount": 100}}
-    response = client.post("/api/v1/srm/sign", json=payload)
-    assert response.status_code == 200
-    assert "srm_signature" in response.json()
-    assert response.json()["status"] == "signed"
+def test_create_review_invalid():
+    # Testing schema validation failure
+    payload = {"id": "not-an-int", "title": "Invalid"}
+    response = client.post("/api/reviews", json=payload)
+    assert response.status_code == 422

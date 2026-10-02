@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List
 from datetime import datetime
 
-app = FastAPI(title="WEB-SRM Certified POS API")
+app = FastAPI(title="Cloud Verification CMS API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,34 +13,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory storage
-transactions = []
-theme_settings = {"background_color": "#ffffff", "accent_color": "#000000"}
+class Review(BaseModel):
+    id: int
+    title: str
+    status: str
+    score: float
+    timestamp: str
 
-class Transaction(BaseModel):
-    transaction_id: str
-    total_amount: float
-    tax_details: Dict[str, float]
-    timestamp: str = None
+# In-memory seed data
+db = [
+    {"id": 1, "title": "Cloud Node Alpha", "status": "active", "score": 98.5, "timestamp": datetime.utcnow().isoformat()},
+    {"id": 2, "title": "Cloud Node Beta", "status": "pending", "score": 82.0, "timestamp": datetime.utcnow().isoformat()}
+]
 
-class SRMRequest(BaseModel):
-    data: Dict[str, Any]
+@app.get("/api/health")
+def health_check():
+    return {"status": "online", "timestamp": datetime.utcnow().isoformat()}
 
-@app.post("/api/v1/srm/sign")
-def sign_transaction(req: SRMRequest):
-    return {"srm_signature": f"SRM-SIG-{hash(str(req.data))}", "status": "signed"}
+@app.get("/api/analytics")
+def get_analytics():
+    return {"total_nodes": len(db), "avg_score": sum(r['score'] for r in db) / len(db) if db else 0}
 
-@app.post("/api/v1/transactions")
-def create_transaction(tx: Transaction):
-    tx.timestamp = datetime.utcnow().isoformat()
-    transactions.append(tx.dict())
-    return {"message": "Transaction processed", "id": tx.transaction_id}
+@app.post("/api/reviews", response_model=Review)
+def create_review(review: Review):
+    db.append(review.dict())
+    return review
 
-@app.get("/api/v1/reports/daily")
-def get_daily_report():
-    return {"date": datetime.utcnow().date(), "total_sales": sum(t['total_amount'] for t in transactions)}
-
-@app.patch("/api/v1/ui/theme")
-def update_theme(config: Dict[str, str]):
-    theme_settings.update(config)
-    return {"message": "Theme updated", "theme": theme_settings}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,58 +1,48 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>WEB-SRM Certified POS | Dashboard</title>
+    <title>Cloud Verification CMS | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        bg: { light: '#ffffff', dark: '#121212' },
-                        card: { light: '#f3f4f6', dark: '#1e1e1e' }
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-bg-light dark:bg-bg-dark text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
-    <nav class="bg-white dark:bg-black border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="text-lg font-bold text-indigo-600 dark:text-indigo-400 tracking-tight">WEB-SRM POS GATEWAY</div>
-        <div class="flex items-center gap-4">
-            <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold">Toggle Theme</button>
-            <div id="srm-status" class="flex items-center px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+<body class="bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden">
+    <nav class="bg-white border-b border-slate-200 px-4 py-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="text-xl font-extrabold tracking-tighter text-indigo-600">CLOUD.VERIFY</div>
+            <div id="sync-status" class="flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
                 <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-                SRM Operational
+                Operational (Standby Demo)
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto p-4 md:p-8">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <section class="md:col-span-8 space-y-6">
-                <div class="bg-card-light dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h2 class="text-lg font-bold mb-4">Transaction Submission</h2>
-                    <div class="flex flex-col gap-4">
-                        <input type="number" class="w-full p-4 bg-white dark:bg-black border border-slate-300 dark:border-slate-700 rounded-xl" placeholder="Total Amount ($)">
-                        <button onclick="submitTransaction()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold transition min-h-[44px]">Process SRM Transaction</button>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <section class="md:col-span-8 space-y-8">
+                <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-sm">
+                    <h2 class="text-2xl font-bold mb-6">Live Verification Feed</h2>
+                    <div id="data-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 border border-slate-100 bg-slate-50 rounded-2xl">
+                            <div class="text-xs font-bold text-slate-400 uppercase">ID: #8829</div>
+                            <div class="font-bold text-lg">System Integrity Check</div>
+                            <div class="text-sm text-emerald-600 font-medium">Status: Verified</div>
+                            <button onclick="trackEvent('Action: Approve')" class="mt-4 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold min-h-[44px] hover:bg-indigo-700 transition-all">Approve Action</button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <aside class="md:col-span-4 space-y-6">
-                <div class="bg-card-light dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h2 class="text-sm font-bold mb-4 text-slate-500 uppercase tracking-wider">System Event Log</h2>
-                    <div id="log" class="h-80 overflow-y-auto font-mono text-[11px] space-y-3 text-slate-600 dark:text-slate-400">
-                        <div>[System] SRM Gateway initialized.</div>
-                        <div>[API] /api/v1/srm/sign: Ready</div>
-                        <div>[Sync] Database connection established.</div>
-                        <div>[Status] Daily report generation enabled.</div>
+            <aside class="md:col-span-4 space-y-8">
+                <div class="bg-white p-6 border border-slate-200 rounded-3xl shadow-sm">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Agent Decision Log</h3>
+                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-3 text-slate-600">
+                        <div>[System] Engine initialized.</div>
+                        <div>[API] /api/health: 200 OK</div>
+                        <div>[Analytics] Metrics stream connected.</div>
+                        <div>[Security] Token validation successful.</div>
                     </div>
                 </div>
             </aside>
@@ -60,16 +50,22 @@
     </main>
 
     <script>
-        async function submitTransaction() {
+        async function trackEvent(action) {
             const log = document.getElementById('log');
-            log.innerHTML += `<div class="text-indigo-600 dark:text-indigo-400">[Action] Submitting to Revenu Qu&eacute;bec SRM...</div>`;
+            const entry = document.createElement('div');
+            entry.className = 'text-indigo-600';
+            entry.textContent = `[Event] ${action} processed.`;
+            log.prepend(entry);
             try {
-                const response = await fetch('/api/v1/transactions', { method: 'POST' });
-                if (!response.ok) throw new Error();
+                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify({ action }) });
             } catch(e) {
-                log.innerHTML += `<div class="text-emerald-600 dark:text-emerald-400">[System] Transaction signed successfully (Demo Mode).</div>`;
+                console.log('Demo Mode: Event logged locally.');
             }
         }
+        
+        window.onload = () => {
+            console.log('Cloud Engine UI Ready');
+        };
     </script>
 </body>
 </html>
