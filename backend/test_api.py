@@ -4,28 +4,31 @@ from main import app
 
 client = TestClient(app)
 
-def test_health_check():
-    response = client.get("/api/health")
+def test_root_health():
+    # Note: The provided implementation does not have a root path, 
+    # but we test the existing endpoints for health/status.
+    response = client.get("/api/v1/reports/daily")
     assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
 
-def test_get_data():
-    response = client.get("/api/data/export")
+def test_daily_report_metrics():
+    response = client.get("/api/v1/reports/daily")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
-    assert len(response.json()) > 0
+    assert "total_sales" in response.json()
 
-def test_trigger_scrape_valid():
-    payload = {"url": "https://example.com/product/123"}
-    response = client.post("/api/scrape/trigger", json=payload)
+def test_create_transaction_valid():
+    payload = {
+        "transaction_id": "TXN-12345",
+        "total_amount": 99.99,
+        "tax_details": {"GST": 5.0, "QST": 9.97}
+    }
+    response = client.post("/api/v1/transactions", json=payload)
     assert response.status_code == 200
-    data = response.json()
-    assert data["message"] == "Scraping job initiated"
-    assert data["url"] == payload["url"]
-    assert "job_id" in data
+    assert response.json()["message"] == "Transaction processed"
+    assert response.json()["id"] == "TXN-12345"
 
-def test_update_theme_valid():
-    payload = {"theme": "dark", "toggle_bg_color": "#000000"}
-    response = client.patch("/api/settings/theme", json=payload)
+def test_srm_sign_endpoint():
+    payload = {"data": {"amount": 100}}
+    response = client.post("/api/v1/srm/sign", json=payload)
     assert response.status_code == 200
-    assert response.json()["settings"] == payload
+    assert "srm_signature" in response.json()
+    assert response.json()["status"] == "signed"
