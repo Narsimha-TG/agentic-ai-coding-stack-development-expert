@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>Cloud Verification CMS | System Dashboard</title>
+    <title>TTS Audiobook Engine | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
 </head>
-<body class="bg-white text-slate-900 min-h-screen font-sans">
-    <nav class="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="text-xl font-bold text-indigo-600">CloudVerify Engine</div>
-        <div id="status-indicator" class="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-100">
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+    <nav class="bg-slate-900 border-b border-slate-800 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="text-xl font-bold text-indigo-400">AudiobookTTS Engine v1.0</div>
+        <div id="status-indicator" class="flex items-center px-3 py-1 bg-emerald-950 text-emerald-400 rounded-full text-xs font-bold border border-emerald-900">
             <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
             Operational (Live)
         </div>
@@ -19,40 +22,43 @@
 
     <main class="max-w-7xl mx-auto p-6 md:p-12">
         <header class="mb-12">
-            <h1 class="text-4xl font-extrabold text-slate-900">System Verification Dashboard</h1>
-            <p class="text-slate-500 mt-2">Automated full-stack verification engine for Render Cloud Workers. Status: <span class="font-semibold text-emerald-600">hire_yes</span></p>
+            <h1 class="text-4xl font-extrabold text-white">Task Processing Dashboard</h1>
+            <p class="text-slate-400 mt-2">Manage multi-voice TTS pipelines and localization workflows.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <section class="lg:col-span-2 space-y-8">
-                <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-                    <h2 class="text-lg font-bold mb-6">Control Action Panel</h2>
-                    <form id="action-form" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <button type="button" onclick="submitAction('VERIFY_NODE')" class="bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Verify Node</button>
-                            <button type="button" onclick="submitAction('SYNC_API')" class="bg-slate-100 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Sync API</button>
-                        </div>
+                <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
+                    <h2 class="text-lg font-bold mb-6 text-white">Initiate New Novel Processing</h2>
+                    <form id="process-form" class="space-y-4">
+                        <input type="text" placeholder="Novel Title" class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-white" />
+                        <select class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-slate-400">
+                            <option>Select Voice Profile</option>
+                            <option>Narrator_Alpha_Deep</option>
+                            <option>Character_Beta_Soft</option>
+                        </select>
+                        <button type="button" onclick="submitAction('PROCESS_NOVEL')" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Start TTS Pipeline</button>
                     </form>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <h3 class="font-bold mb-4">Live Metrics</h3>
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                    <h3 class="font-bold mb-4 text-white">Active Task Waveform</h3>
                     <div class="h-32 flex items-end gap-2">
-                        <div class="w-full bg-indigo-500 h-16 rounded-t animate-pulse"></div>
-                        <div class="w-full bg-indigo-400 h-24 rounded-t animate-pulse"></div>
-                        <div class="w-full bg-indigo-300 h-12 rounded-t animate-pulse"></div>
-                        <div class="w-full bg-indigo-600 h-20 rounded-t animate-pulse"></div>
+                        <div class="w-full bg-indigo-500 h-16 rounded-t animate-[pulse_1s_ease-in-out_infinite]"></div>
+                        <div class="w-full bg-indigo-400 h-24 rounded-t animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+                        <div class="w-full bg-indigo-300 h-12 rounded-t animate-[pulse_0.8s_ease-in-out_infinite]"></div>
+                        <div class="w-full bg-indigo-600 h-20 rounded-t animate-[pulse_1.2s_ease-in-out_infinite]"></div>
                     </div>
                 </div>
             </section>
 
             <aside class="space-y-8">
-                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-wider">Agent Decision Log</h2>
-                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-2 text-slate-600">
-                        <div>[System] Initializing Render Worker...</div>
-                        <div>[API] /api/health: 200 OK</div>
-                        <div>[Auth] hire_yes: Access Granted</div>
-                        <div>[CMS] Schema sync complete...</div>
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                    <h2 class="text-sm font-bold mb-4 text-slate-500 uppercase tracking-wider">System Log</h2>
+                    <div id="log" class="h-64 overflow-y-auto font-mono text-[11px] space-y-2 text-slate-400">
+                        <div>[System] Initializing worker nodes...</div>
+                        <div>[API] /api/v1/health: 200 OK</div>
+                        <div>[Queue] Redis connection established...</div>
+                        <div>[TTS] Voice profiles loaded successfully.</div>
                     </div>
                 </div>
             </aside>
@@ -63,7 +69,7 @@
         async function initSystem() {
             const log = document.getElementById('log');
             try {
-                const response = await fetch('/api/health');
+                const response = await fetch('/api/v1/health');
                 if (!response.ok) throw new Error();
             } catch (e) {
                 const status = document.getElementById('status-indicator');
@@ -74,9 +80,9 @@
             const log = document.getElementById('log');
             log.innerHTML += `<div>[Action] Executing ${type}...</div>`;
             try {
-                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify({ action: type }) });
+                await fetch('/api/v1/process-novel', { method: 'POST', body: JSON.stringify({ action: type }) });
             } catch(e) {
-                log.innerHTML += `<div class="text-amber-600">[System] Action ${type} queued in demo mode.</div>`;
+                log.innerHTML += `<div class="text-indigo-400">[System] ${type} request queued in demo mode.</div>`;
             }
         }
         window.onload = initSystem;

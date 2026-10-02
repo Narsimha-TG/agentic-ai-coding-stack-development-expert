@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
 from datetime import datetime
+import uuid
 
-app = FastAPI(title="Cloud Verification CMS API")
+app = FastAPI(title="Audiobook TTS & Localization API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,32 +14,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Review(BaseModel):
-    id: int
-    title: str
-    status: str
-    score: float
-    timestamp: str
+class NovelTask(BaseModel):
+    task_id: str
+    novel_title: str
+    language_target: str
+    voice_profile_id: str
+    status: str = "pending"
+    progress_percentage: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = None
 
-# In-memory seed data
-db = [
-    {"id": 1, "title": "Verification Alpha", "status": "active", "score": 98.5, "timestamp": datetime.utcnow().isoformat()},
-    {"id": 2, "title": "Verification Beta", "status": "pending", "score": 82.0, "timestamp": datetime.utcnow().isoformat()}
-]
+# In-memory storage
+db = {}
 
-@app.get("/api/health")
-def health_check():
-    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+@app.post("/api/v1/process-novel", response_model=NovelTask)
+async def process_novel(title: str, lang: str, voice_id: str):
+    task_id = str(uuid.uuid4())
+    new_task = NovelTask(task_id=task_id, novel_title=title, language_target=lang, voice_profile_id=voice_id)
+    db[task_id] = new_task
+    return new_task
 
-@app.get("/api/analytics", response_model=List[Review])
-def get_analytics():
-    return db
+@app.get("/api/v1/tasks/{task_id}", response_model=NovelTask)
+async def get_task(task_id: str):
+    if task_id not in db:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return db[task_id]
 
-@app.post("/api/reviews", response_model=Review)
-def create_review(review: Review):
-    db.append(review.dict())
-    return review
+@app.post("/api/v1/translate")
+async def translate_chapter(task_id: str, chapter_index: int):
+    if task_id not in db:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"message": f"Translation triggered for chapter {chapter_index}"}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/api/v1/audio/{task_id}/download")
+async def download_audio(task_id: str):
+    if task_id not in db:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"url": f"/static/audio/{task_id}.mp3"}
+
+@app.get("/api/v1/health")
+async def health_check():
+    return {"status": "healthy", "workers": "active"}

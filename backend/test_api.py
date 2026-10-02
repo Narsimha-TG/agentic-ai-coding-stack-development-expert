@@ -5,30 +5,33 @@ from main import app
 client = TestClient(app)
 
 def test_health_check():
-    response = client.get("/api/health")
+    response = client.get("/api/v1/health")
     assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
+    assert response.json() == {"status": "healthy", "workers": "active"}
 
-def test_get_analytics():
-    response = client.get("/api/analytics")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-    assert len(response.json()) >= 2
-
-def test_create_review():
+def test_process_novel_success():
     payload = {
-        "id": 3,
-        "title": "Verification Gamma",
-        "status": "completed",
-        "score": 95.0,
-        "timestamp": "2023-10-27T10:00:00"
+        "title": "The Great Gatsby",
+        "lang": "en-US",
+        "voice_id": "voice-001"
     }
-    response = client.post("/api/reviews", json=payload)
+    response = client.post("/api/v1/process-novel", params=payload)
     assert response.status_code == 200
-    assert response.json()["id"] == 3
-    assert response.json()["title"] == "Verification Gamma"
+    data = response.json()
+    assert data["novel_title"] == "The Great Gatsby"
+    assert "task_id" in data
+    assert data["status"] == "pending"
 
-def test_create_review_invalid():
-    payload = {"id": "invalid_id", "title": "Fail"}
-    response = client.post("/api/reviews", json=payload)
-    assert response.status_code == 422
+def test_get_task_not_found():
+    response = client.get("/api/v1/tasks/non-existent-id")
+    assert response.status_code == 404
+
+def test_translate_endpoint():
+    # First create a task
+    create_res = client.post("/api/v1/process-novel", params={"title": "Test", "lang": "fr", "voice_id": "v1"})
+    task_id = create_res.json()["task_id"]
+    
+    # Trigger translation
+    response = client.post(f"/api/v1/translate?task_id={task_id}&chapter_index=1")
+    assert response.status_code == 200
+    assert "Translation triggered" in response.json()["message"]
