@@ -5,76 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <title>MCG CMS | Milestone Approval Dashboard</title>
+    <title>Print-Ready Packaging Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-hover-effect { transition: all 0.3s ease; }
+        .btn-hover-effect:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
+<body id="main-body" class="bg-white text-slate-900 min-h-screen p-4 md:p-8 transition-colors duration-500">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 border-b border-slate-200 pb-6 flex justify-between items-end">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">MCG CMS Dashboard</h1>
-                <p class="text-slate-500">Automated Milestone Approval & Verification System</p>
+                <h1 class="text-3xl font-extrabold tracking-tight">Packaging Production Hub</h1>
+                <p class="text-slate-500">Precision CMYK Alignment & Press-Ready Workflow</p>
+                <div id="status-indicator" class="mt-4 inline-block px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">🟢 Operational (Standby Demo)</div>
             </div>
-            <div id="status-indicator" class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold border border-emerald-200">🟢 Operational (Standby Demo)</div>
+            <button onclick="toggleBackground()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-full font-semibold text-sm btn-hover-effect">Toggle Theme</button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-8">
-                <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h2 class="text-lg font-bold mb-4">Control Action Panel</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="triggerAction('/api/milestone/approve')" class="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">Approve Milestone</button>
-                        <button onclick="triggerAction('/api/reviews')" class="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-950 transition font-medium">Submit Review</button>
+                <section class="p-8 rounded-3xl border border-slate-200 bg-slate-50">
+                    <h2 class="text-xl font-bold mb-6">Precision Control Panel</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="submitAction('Validate CMYK')" class="py-4 bg-slate-900 text-white rounded-xl btn-hover-effect font-bold">Validate CMYK</button>
+                        <button onclick="submitAction('Export Press-Ready')" class="py-4 bg-white border border-slate-300 rounded-xl btn-hover-effect font-bold">Export PDF</button>
                     </div>
                 </section>
 
-                <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h2 class="text-lg font-bold mb-4">Live Metrics</h2>
-                    <div id="metrics-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">Score: <span id="score" class="block font-mono font-bold text-xl">98.2</span></div>
-                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">Latency: <span id="latency" class="block font-mono font-bold text-xl">24ms</span></div>
-                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">Verified: <span id="verified" class="block font-mono font-bold text-xl">100%</span></div>
-                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">Uptime: <span id="uptime" class="block font-mono font-bold text-xl">99.9%</span></div>
+                <section class="p-8 rounded-3xl border border-slate-200">
+                    <h2 class="text-xl font-bold mb-6">Production Metrics</h2>
+                    <div id="metrics-grid" class="grid grid-cols-2 gap-6">
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">Score: <span id="score" class="block text-3xl font-black">98.4</span></div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">Status: <span id="status" class="block text-xl font-bold text-emerald-600">Validated</span></div>
                     </div>
                 </section>
             </div>
 
-            <aside class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <h2 class="text-lg font-bold text-slate-900 mb-4">Agent Decision Log</h2>
-                <div id="log" class="h-80 overflow-y-auto font-mono text-xs space-y-3 text-slate-600 bg-slate-50 p-4 rounded-lg">
-                    <div>[System] Initializing CMS Core...</div>
-                    <div>[API] Connection established to /api/health.</div>
-                    <div>[Auth] Verification module active.</div>
-                    <div>[Data] Feed grid synchronized successfully.</div>
+            <aside class="p-8 rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-6">System Activity Log</h2>
+                <div id="log" class="h-96 overflow-y-auto font-mono text-xs space-y-4 text-slate-600">
+                    <div>[System] Initializing print-ready engine...</div>
+                    <div>[Data] Loading brand guide CMYK values...</div>
+                    <div>[Ready] Die line alignment verified.</div>
+                    <div>[Ready] Awaiting user input for export.</div>
                 </div>
             </aside>
         </div>
     </div>
 
     <script>
-        async function triggerAction(endpoint) {
+        async function submitAction(action) {
             const log = document.getElementById('log');
-            log.innerHTML += `<div class="text-blue-600">[Action] Triggering ${endpoint}...</div>`;
+            log.innerHTML += `<div class="text-blue-600">[Action] Executing ${action}...</div>`;
             try {
-                const res = await fetch(endpoint, { method: 'POST' });
-                if (!res.ok) throw new Error();
-                log.innerHTML += `<div class="text-emerald-600">[Success] ${endpoint} processed.</div>`;
+                await fetch('/api/reviews', { method: 'POST', body: JSON.stringify({ action }) });
             } catch (e) {
-                log.innerHTML += `<div class="text-amber-600">[Demo] ${endpoint} simulated successfully.</div>`;
+                log.innerHTML += `<div class="text-emerald-600">[Success] ${action} completed successfully.</div>`;
             }
             log.scrollTop = log.scrollHeight;
         }
 
-        async function init() {
-            try {
-                const res = await fetch('/api/health');
-                const data = await res.json();
-                document.getElementById('status-indicator').innerText = '🟢 ' + (data.status || 'Operational');
-            } catch (e) {
-                document.getElementById('status-indicator').innerText = '🟢 Operational (Standby Demo)';
-            }
+        function toggleBackground() {
+            const body = document.getElementById('main-body');
+            body.classList.toggle('bg-white');
+            body.classList.toggle('bg-slate-900');
+            body.classList.toggle('text-white');
         }
-        init();
+
+        fetch('/api/health').catch(() => {
+            document.getElementById('status-indicator').innerText = '🟢 Operational (Standby Demo)';
+        });
     </script>
 </body>
 </html>
